@@ -3,7 +3,16 @@ import h5py
 import numpy as np
 import os
 from collections import namedtuple
-PathValue = namedtuple('PathValue', ['path', 'value'])
+
+
+def __c_string(string: str) -> h5py.Datatype:
+    # pylint: disable=c-extension-no-member
+    tid = h5py.h5t.C_S1.copy()
+    tid.set_size(len(string) + 1)
+    tid.set_strpad(h5py.h5t.STR_NULLTERM)
+
+    dtype = h5py.Datatype(tid)
+    return {"data": string, "shape": None, "dtype": dtype}
 
 
 class HiisiHDF(h5py.File):
@@ -132,6 +141,27 @@ class HiisiHDF(h5py.File):
         path_attr_gen = (PathValue(attr_path, self[attr_path].attrs.get(attr)) for attr_path in HiisiHDF.CACHE['attribute_paths'])
         return path_attr_gen
 
+    def create_attr(self, path, name, value):
+        """Creates an attribute in a given group or dataset
+
+        Parameters
+        ----------
+        group : h5py.Group or h5py.Dataset
+            Group or dataset where the attribute is created
+        name : str
+            Name of the attribute
+        value : str or numerical value
+            Value of the attribute
+
+        Examples
+        --------
+        >>> h5f.create_attr(h5f['/dataset1/data1'], 'quantity', 'DBZH')
+
+        """
+        if isinstance(value, str):
+            self[path].attrs.create(name, **__c_string(value))
+        else:
+            self[path].attrs[name] = value
 
     def create_from_filedict(self, filedict):
         """
@@ -177,15 +207,15 @@ class HiisiHDF(h5py.File):
                             compression_opts=path_content.get("COMPRESSION_OPTS", None),
                         )
                         for key, value in path_content.items():
-                            if key != 'DATASET':
-                                new_dataset.attrs[key] = value
+                            if key != "DATASET":
+                                self.create_attr(h5path, key, value)
                 else:
                     try:  
                         group = self.create_group(h5path)
                     except ValueError:
                         group = self[h5path]
                     for key, value in path_content.items():
-                        group.attrs[key] = value
+                        self.create_attr(h5path, key, value)
 
     def search(self, attr, value, tolerance=0):
         """Find paths with a key value match
