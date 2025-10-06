@@ -162,6 +162,9 @@ class HiisiHDF(h5py.File):
         """
         if isinstance(value, str):
             self[path].attrs.create(name, **_c_string(value))
+        elif isinstance(value, (bytes)):
+            # Save all bytes as c-strings
+            self[path].attrs.create(name, **_c_string(value.decode("utf-8")))
         else:
             self[path].attrs[name] = value
 
