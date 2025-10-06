@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools >= 64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+classifiers = [
+    'Development Status :: 2 - Pre-Alpha',
+    'Intended Audience :: Developers',
+    'Topic :: Scientific/Engineering',
+    'License :: OSI Approved :: MIT License',
+    'Programming Language :: Python :: 2.7',
+]
+
+name = "hiisi"
+dynamic = ["version", "readme"]
+description = "Easy-to-use HDF5 file handler built on top of h5py."
+authors = [
+    { name = "Joonas Karjalainen", email = "joonas.karjalainen@fmi.fi" },
+    { name = "Jenna Ritvanen", email = "jenna.ritvanen@fmi.fi" },
+]
+dependencies = ["h5py", "numpy"]
+requires-python = ">=3.7"
+license = { file = "LICENSE" }
+
+[tool.setuptools.dynamic]
+version = { attr = "hiisi.__version__" }
+readme = { file = ["README.rst"] }
+
+[tool.setuptools.packages.find]
+where = ["."]
