@@ -4,6 +4,8 @@ import numpy as np
 import os
 from collections import namedtuple
 
+PathValue = namedtuple("PathValue", ["path", "value"])
+
 
 def _c_string(string: str) -> h5py.Datatype:
     # pylint: disable=c-extension-no-member
