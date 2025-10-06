@@ -5,7 +5,7 @@ import os
 from collections import namedtuple
 
 
-def __c_string(string: str) -> h5py.Datatype:
+def _c_string(string: str) -> h5py.Datatype:
     # pylint: disable=c-extension-no-member
     tid = h5py.h5t.C_S1.copy()
     tid.set_size(len(string) + 1)
@@ -159,7 +159,7 @@ class HiisiHDF(h5py.File):
 
         """
         if isinstance(value, str):
-            self[path].attrs.create(name, **__c_string(value))
+            self[path].attrs.create(name, **_c_string(value))
         else:
             self[path].attrs[name] = value
 
